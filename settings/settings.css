@@ -1,0 +1,189 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #12121f;
+  color: #e0e0f0;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 12px;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 16px;
+}
+
+.settings-container {
+  width: 100%;
+  max-width: 480px;
+  background: #1a1a2e;
+  border-radius: 14px;
+  border: 1px solid #2e2e4e;
+  overflow: hidden;
+}
+
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+  background: #16213e;
+  border-bottom: 1px solid #2e2e4e;
+}
+
+.settings-logo {
+  font-weight: 700;
+  color: #7c83fd;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+}
+
+.settings-title {
+  color: #8888aa;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.settings-body {
+  padding: 16px 20px;
+}
+
+.settings-section {
+  margin-bottom: 24px;
+}
+
+.settings-section-title {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #7c83fd;
+  margin-bottom: 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #2e2e4e;
+}
+
+.settings-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #1e1e3e;
+}
+
+.settings-label {
+  color: #e0e0f0;
+  font-size: 11px;
+  margin-bottom: 2px;
+}
+
+.settings-sublabel {
+  color: #5a5a7a;
+  font-size: 10px;
+}
+
+.settings-input {
+  width: 52px;
+  background: #2e2e4e;
+  border: 1px solid #3e3e6e;
+  border-radius: 6px;
+  color: #e0e0f0;
+  font-family: inherit;
+  font-size: 11px;
+  padding: 4px 6px;
+  text-align: center;
+  outline: none;
+}
+
+.settings-input:focus {
+  border-color: #7c83fd;
+}
+
+.settings-unit {
+  color: #5a5a7a;
+  margin-left: 4px;
+}
+
+/* Toggle switch */
+.settings-toggle {
+  position: relative;
+  display: inline-block;
+  width: 36px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.settings-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: #2e2e4e;
+  border-radius: 20px;
+  transition: 0.2s;
+}
+
+.toggle-slider::before {
+  content: "";
+  position: absolute;
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+  background: #5a5a7a;
+  border-radius: 50%;
+  transition: 0.2s;
+}
+
+.settings-toggle input:checked + .toggle-slider {
+  background: #2a2a5e;
+}
+
+.settings-toggle input:checked + .toggle-slider::before {
+  background: #7c83fd;
+  transform: translateX(16px);
+}
+
+.settings-footer {
+  padding: 14px 20px;
+  border-top: 1px solid #2e2e4e;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.settings-btn {
+  background: #7c83fd;
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 8px 20px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.settings-btn:hover {
+  background: #5c63dd;
+}
+
+.settings-saved {
+  color: #4caf82;
+  font-size: 10px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.settings-saved.visible {
+  opacity: 1;
+}

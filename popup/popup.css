@@ -1,0 +1,109 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  width: 220px;
+  background: #1a1a2e;
+  color: #e0e0f0;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 11px;
+}
+
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background: #16213e;
+  border-bottom: 1px solid #2e2e4e;
+}
+
+.popup-logo {
+  font-size: 11px;
+  font-weight: 700;
+  color: #7c83fd;
+  letter-spacing: 0.5px;
+}
+
+.popup-version {
+  font-size: 9px;
+  color: #5a5a7a;
+}
+
+.popup-body {
+  padding: 8px 12px;
+}
+
+.popup-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 0;
+}
+
+.popup-label {
+  color: #8888aa;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.popup-value {
+  color: #e0e0f0;
+  font-size: 11px;
+}
+
+.popup-badge {
+  background: #1a3a2e;
+  color: #4caf82;
+  font-size: 9px;
+  padding: 2px 7px;
+  border-radius: 20px;
+  border: 1px solid #2e5a44;
+}
+
+.popup-divider {
+  height: 1px;
+  background: #2e2e4e;
+  margin: 4px 0;
+}
+
+.popup-btn {
+  display: block;
+  text-align: center;
+  padding: 7px;
+  margin: 6px 0;
+  border-radius: 6px;
+  background: #7c83fd;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.popup-btn:hover {
+  background: #5c63dd;
+}
+
+.popup-btn-secondary {
+  background: #2e2e4e;
+  color: #aaa;
+}
+
+.popup-btn-secondary:hover {
+  background: #3e3e6e;
+  color: #e0e0f0;
+}
+
+.popup-footer {
+  text-align: center;
+  padding: 8px;
+  font-size: 9px;
+  color: #3a3a5a;
+  border-top: 1px solid #2e2e4e;
+}

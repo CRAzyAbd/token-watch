@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Token Watch — Settings</title>
+  <link rel="stylesheet" href="settings.css" />
+</head>
+<body>
+  <div class="settings-container">
+
+    <div class="settings-header">
+      <span class="settings-logo">⟨/⟩ token-watch</span>
+      <span class="settings-title">Settings</span>
+    </div>
+
+    <div class="settings-body">
+
+      <div class="settings-section">
+        <div class="settings-section-title">Alerts</div>
+
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Context warning threshold</div>
+            <div class="settings-sublabel">Show yellow warning at this % of context used</div>
+          </div>
+          <input class="settings-input" type="number" id="warn-threshold"
+            min="10" max="95" value="70" /> <span class="settings-unit">%</span>
+        </div>
+
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Context danger threshold</div>
+            <div class="settings-sublabel">Show red alert at this % of context used</div>
+          </div>
+          <input class="settings-input" type="number" id="danger-threshold"
+            min="10" max="99" value="90" /> <span class="settings-unit">%</span>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">Display</div>
+
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Show cost estimator</div>
+            <div class="settings-sublabel">Display estimated conversation cost</div>
+          </div>
+          <label class="settings-toggle">
+            <input type="checkbox" id="show-cost" checked />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Show response timer</div>
+            <div class="settings-sublabel">Track Claude's response time</div>
+          </div>
+          <label class="settings-toggle">
+            <input type="checkbox" id="show-timer" checked />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Show usage bars</div>
+            <div class="settings-sublabel">Display session and weekly usage</div>
+          </div>
+          <label class="settings-toggle">
+            <input type="checkbox" id="show-usage" checked />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="settings-footer">
+      <button class="settings-btn" id="save-btn">Save Settings</button>
+      <span class="settings-saved" id="saved-msg">✓ Saved</span>
+    </div>
+
+  </div>
+  <script src="settings.js"></script>
+</body>
+</html>

@@ -1,0 +1,127 @@
+/* Token Watch — Widget Styles */
+
+#token-watch-panel {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 220px;
+  background: #1a1a2e;
+  color: #e0e0f0;
+  border-radius: 12px;
+  border: 1px solid #2e2e4e;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 11px;
+  z-index: 99999;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+#token-watch-panel.tw-alert {
+  border-color: #ff4444;
+  box-shadow: 0 8px 32px rgba(255, 68, 68, 0.3);
+}
+
+/* Header */
+.tw-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border-bottom: 1px solid #2e2e4e;
+  background: #16213e;
+  border-radius: 12px 12px 0 0;
+}
+
+.tw-logo {
+  font-size: 10px;
+  font-weight: 700;
+  color: #7c83fd;
+  letter-spacing: 0.5px;
+}
+
+.tw-header-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.tw-btn-icon {
+  background: none;
+  border: none;
+  color: #8888aa;
+  cursor: pointer;
+  font-size: 13px;
+  padding: 0 3px;
+  line-height: 1;
+  transition: color 0.15s;
+}
+
+.tw-btn-icon:hover {
+  color: #e0e0f0;
+}
+
+/* Body */
+.tw-body {
+  padding: 8px 0;
+}
+
+.tw-section {
+  padding: 4px 10px;
+}
+
+.tw-divider {
+  height: 1px;
+  background: #2e2e4e;
+  margin: 4px 0;
+}
+
+/* Rows */
+.tw-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 2px 0;
+}
+
+.tw-label {
+  color: #8888aa;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tw-value {
+  color: #e0e0f0;
+  font-weight: 600;
+  font-size: 11px;
+}
+
+.tw-sublabel {
+  color: #5a5a7a;
+  font-size: 9px;
+}
+
+/* Progress bars */
+.tw-bar-wrap {
+  background: #2e2e4e;
+  border-radius: 4px;
+  height: 4px;
+  margin: 4px 0;
+  overflow: hidden;
+}
+
+.tw-bar {
+  height: 100%;
+  border-radius: 4px;
+  background: #7c83fd;
+  transition: width 0.4s ease, background 0.4s ease;
+  width: 0%;
+}
+
+.tw-bar-warning {
+  background: #f0a500;
+}
+
+.tw-bar-danger {
+  background: #ff4444;
+}

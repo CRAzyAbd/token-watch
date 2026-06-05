@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Token Watch</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="popup-header">
+    <span class="popup-logo">⟨/⟩ token-watch</span>
+    <span class="popup-version">v1.0.0</span>
+  </div>
+
+  <div class="popup-body">
+    <div class="popup-row">
+      <span class="popup-label">Status</span>
+      <span class="popup-badge" id="status-badge">Active</span>
+    </div>
+
+    <div class="popup-divider"></div>
+
+    <div class="popup-row">
+      <span class="popup-label">Active on</span>
+      <span class="popup-value">claude.ai</span>
+    </div>
+
+    <div class="popup-divider"></div>
+
+    <a class="popup-btn" id="open-settings">⚙ Open Settings</a>
+    <a class="popup-btn popup-btn-secondary" id="open-claude">↗ Go to Claude</a>
+  </div>
+
+  <div class="popup-footer">
+    All data stays local. No tracking.
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
