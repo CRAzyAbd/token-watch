@@ -1,150 +1,174 @@
-// content.js — Main entry point, injects Token Watch UI into claude.ai
+// content.js — Token Watch main entry, runs in MAIN world at document_start
 
 (() => {
+  const WRAPPER_ID = "token-watch-wrapper";
   const PANEL_ID = "token-watch-panel";
-  const UPDATE_INTERVAL = 5000; // refresh every 5 seconds
+  const REFRESH_INTERVAL = 2000;
 
   let conversationTokens = 0;
-  let updateTimer = null;
   let isCollapsed = false;
 
-  // ─── Intercept XHR/fetch to grab conversation data ───────────────────────
-
-  const originalFetch = window.fetch;
+  // ─── HOOK FETCH IMMEDIATELY ──────────────────────────────────────────────
+  const _fetch = window.fetch;
   window.fetch = async function (...args) {
-    const response = await originalFetch.apply(this, args);
+    const res = await _fetch.apply(this, args);
     try {
       const url = typeof args[0] === "string" ? args[0] : args[0]?.url || "";
-      if (url.includes("chat_conversations") && !url.includes("usage")) {
-        const clone = response.clone();
-        clone.json().then(data => {
-          const messages = data?.chat_messages ?? data?.messages ?? [];
-          if (messages.length > 0) {
-            conversationTokens = TokenCounter.countConversationTokens(messages);
-          }
-        }).catch(() => {});
+      if (url.includes("/chat_conversations/") && !url.includes("/usage")) {
+        res.clone().json().then(data => processConversationData(data)).catch(() => {});
       }
     } catch (_) {}
-    return response;
+    return res;
   };
 
-  // ─── Build the widget HTML ────────────────────────────────────────────────
-
-  function createPanel() {
-    const panel = document.createElement("div");
-    panel.id = PANEL_ID;
-    panel.innerHTML = `
-      <div class="tw-header">
-        <span class="tw-logo">⟨/⟩ token-watch</span>
-        <div class="tw-header-actions">
-          <button class="tw-btn-icon" id="tw-settings-btn" title="Settings">⚙</button>
-          <button class="tw-btn-icon" id="tw-collapse-btn" title="Collapse">−</button>
-        </div>
-      </div>
-      <div class="tw-body" id="tw-body">
-
-        <div class="tw-section">
-          <div class="tw-row">
-            <span class="tw-label">Model</span>
-            <span class="tw-value" id="tw-model">Detecting...</span>
-          </div>
-        </div>
-
-        <div class="tw-divider"></div>
-
-        <div class="tw-section">
-          <div class="tw-row">
-            <span class="tw-label">Tokens</span>
-            <span class="tw-value" id="tw-token-count">—</span>
-          </div>
-          <div class="tw-bar-wrap">
-            <div class="tw-bar" id="tw-token-bar"></div>
-          </div>
-          <div class="tw-row">
-            <span class="tw-sublabel" id="tw-token-percent">0% of context used</span>
-            <span class="tw-sublabel" id="tw-token-limit">/ 200k</span>
-          </div>
-        </div>
-
-        <div class="tw-divider"></div>
-
-        <div class="tw-section">
-          <div class="tw-row">
-            <span class="tw-label">Est. Cost</span>
-            <span class="tw-value" id="tw-cost">—</span>
-          </div>
-          <div class="tw-row">
-            <span class="tw-sublabel">Based on current model pricing</span>
-          </div>
-        </div>
-
-        <div class="tw-divider"></div>
-
-        <div class="tw-section">
-          <div class="tw-row">
-            <span class="tw-label">Session (5h)</span>
-            <span class="tw-value" id="tw-session-val">—</span>
-          </div>
-          <div class="tw-bar-wrap">
-            <div class="tw-bar" id="tw-session-bar"></div>
-          </div>
-          <div class="tw-row">
-            <span class="tw-sublabel" id="tw-session-reset">Resets in —</span>
-          </div>
-        </div>
-
-        <div class="tw-section">
-          <div class="tw-row">
-            <span class="tw-label">Weekly (7d)</span>
-            <span class="tw-value" id="tw-weekly-val">—</span>
-          </div>
-          <div class="tw-bar-wrap">
-            <div class="tw-bar" id="tw-weekly-bar"></div>
-          </div>
-          <div class="tw-row">
-            <span class="tw-sublabel" id="tw-weekly-reset">Resets in —</span>
-          </div>
-        </div>
-
-        <div class="tw-divider"></div>
-
-        <div class="tw-section">
-          <div class="tw-row">
-            <span class="tw-label">Last Response</span>
-            <span class="tw-value" id="tw-resp-last">—</span>
-          </div>
-          <div class="tw-row">
-            <span class="tw-label">Avg Response</span>
-            <span class="tw-value" id="tw-resp-avg">—</span>
-          </div>
-        </div>
-
-      </div>
-    `;
-    return panel;
+  function processConversationData(data) {
+    if (!data) return;
+    const messages = data?.chat_messages ?? data?.messages ?? [];
+    if (messages.length > 0) {
+      conversationTokens = TokenCounter.countConversationTokens(messages);
+      CacheTimer.updateFromMessages(messages);
+    }
+    refreshUI();
   }
 
-  // ─── Update bar width and color ───────────────────────────────────────────
+  function getOrgId() {
+    const m = document.cookie.match(/lastActiveOrg=([^;]+)/);
+    return m ? m[1] : null;
+  }
+
+  function getConversationIdFromUrl() {
+    const m = location.pathname.match(/\/chat\/([a-f0-9-]+)/i);
+    return m ? m[1] : null;
+  }
+
+  async function loadCurrentConversation() {
+    const orgId = getOrgId();
+    const convId = getConversationIdFromUrl();
+    if (!orgId || !convId) return;
+    try {
+      const r = await fetch(
+        `https://claude.ai/api/organizations/${orgId}/chat_conversations/${convId}?tree=True&rendering_mode=messages&render_all_tools=true`,
+        { credentials: "include" }
+      );
+      if (r.ok) processConversationData(await r.json());
+    } catch (e) {
+      console.warn("[token-watch] load conv failed:", e);
+    }
+  }
+
+  // ─── BUILD WIDGET ────────────────────────────────────────────────────────
+  function createWrapper() {
+    const wrapper = document.createElement("div");
+    wrapper.id = WRAPPER_ID;
+    wrapper.innerHTML = `
+      <div class="tw-cache-pill" id="tw-cache-pill" title="Conversation cache — replies are cheaper while active">
+        <span class="tw-cache-dot"></span>
+        <span class="tw-cache-label">Cache</span>
+        <span class="tw-cache-text" id="tw-cache-text">—</span>
+      </div>
+
+      <div id="${PANEL_ID}">
+        <div class="tw-header">
+          <span class="tw-logo">⟨/⟩ token-watch</span>
+          <button class="tw-btn-icon" id="tw-collapse-btn" title="Collapse">−</button>
+        </div>
+        <div class="tw-body" id="tw-body">
+
+          <div class="tw-section">
+            <div class="tw-row">
+              <span class="tw-label">Model</span>
+              <span class="tw-value" id="tw-model">Detecting...</span>
+            </div>
+          </div>
+
+          <div class="tw-divider"></div>
+
+          <div class="tw-section">
+            <div class="tw-row">
+              <span class="tw-label">Tokens</span>
+              <span class="tw-value" id="tw-token-count">—</span>
+            </div>
+            <div class="tw-bar-wrap"><div class="tw-bar" id="tw-token-bar"></div></div>
+            <div class="tw-row">
+              <span class="tw-sublabel" id="tw-token-percent">0% of context used</span>
+              <span class="tw-sublabel" id="tw-token-limit">/ 200k</span>
+            </div>
+          </div>
+
+          <div class="tw-divider"></div>
+
+          <div class="tw-section">
+            <div class="tw-row">
+              <span class="tw-label">Session (5h)</span>
+              <span class="tw-value" id="tw-session-val">—</span>
+            </div>
+            <div class="tw-bar-wrap"><div class="tw-bar" id="tw-session-bar"></div></div>
+            <div class="tw-row">
+              <span class="tw-sublabel" id="tw-session-reset">Resets in —</span>
+            </div>
+          </div>
+
+          <div class="tw-section">
+            <div class="tw-row">
+              <span class="tw-label">Weekly (7d)</span>
+              <span class="tw-value" id="tw-weekly-val">—</span>
+            </div>
+            <div class="tw-bar-wrap"><div class="tw-bar" id="tw-weekly-bar"></div></div>
+            <div class="tw-row">
+              <span class="tw-sublabel" id="tw-weekly-reset">Resets in —</span>
+            </div>
+          </div>
+
+          <div class="tw-divider"></div>
+
+          <div class="tw-section">
+            <div class="tw-row">
+              <span class="tw-label">Last Response</span>
+              <span class="tw-value" id="tw-resp-last">—</span>
+            </div>
+            <div class="tw-row">
+              <span class="tw-label">Avg Response</span>
+              <span class="tw-value" id="tw-resp-avg">—</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    `;
+    return wrapper;
+  }
 
   function updateBar(barEl, percent, level) {
     if (!barEl) return;
     barEl.style.width = `${Math.min(percent, 100)}%`;
-    barEl.className = "tw-bar";
+    barEl.classList.remove("tw-bar-warning", "tw-bar-danger");
     if (level === "danger")  barEl.classList.add("tw-bar-danger");
     else if (level === "warning") barEl.classList.add("tw-bar-warning");
   }
 
-  // ─── Main UI refresh ──────────────────────────────────────────────────────
-
   async function refreshUI() {
+    const wrapper = document.getElementById(WRAPPER_ID);
+    if (!wrapper) return;
+
+    const el = id => wrapper.querySelector(`#${id}`);
+
+    // Cache pill (always update, even when collapsed)
+    const cache = CacheTimer.getStatus();
+    const cachePill = document.getElementById("tw-cache-pill");
+    if (cache.state === "active") {
+      cachePill.classList.add("tw-cache-visible");
+      el("tw-cache-text").textContent = cache.text;
+    } else {
+      cachePill.classList.remove("tw-cache-visible");
+    }
+
+    if (isCollapsed) return;
+
     const panel = document.getElementById(PANEL_ID);
-    if (!panel || isCollapsed) return;
 
     // Model
     const model = ModelDetector.getModel();
-    const modelName = ModelDetector.getDisplayName(model);
-    const el = id => panel.querySelector(`#${id}`);
-    el("tw-model").textContent = modelName;
+    el("tw-model").textContent = ModelDetector.getDisplayName(model);
 
     // Tokens
     const contextLimit = ModelDetector.getContextLimit(model);
@@ -155,107 +179,71 @@
     el("tw-token-limit").textContent = `/ ${(contextLimit / 1000).toFixed(0)}k`;
     updateBar(el("tw-token-bar"), pct, level);
 
-    // Alert if near limit
-    if (level === "danger" && !panel.dataset.alerted) {
-      panel.dataset.alerted = "true";
-      panel.classList.add("tw-alert");
-    } else if (level !== "danger") {
-      panel.dataset.alerted = "";
-      panel.classList.remove("tw-alert");
-    }
-
-    // Cost
-    const cost = CostEstimator.estimate(conversationTokens, model);
-    el("tw-cost").textContent = cost.formatted;
+    if (level === "danger") panel.classList.add("tw-alert");
+    else panel.classList.remove("tw-alert");
 
     // Usage
     const usage = await UsageTracker.getUsage();
     if (usage) {
       const { session, weekly } = usage;
-
-      const sPct = session.percent != null ? session.percent * 100 : 0;
-      el("tw-session-val").textContent = session.limit
-        ? `${session.used} / ${session.limit} msgs`
-        : `${session.used} msgs`;
+      el("tw-session-val").textContent = `${session.percent.toFixed(0)}%`;
       el("tw-session-reset").textContent = `Resets in ${session.timeLeft}`;
-      updateBar(el("tw-session-bar"), sPct, sPct >= 90 ? "danger" : sPct >= 70 ? "warning" : "normal");
+      const sLevel = session.percent >= 90 ? "danger" : session.percent >= 70 ? "warning" : "normal";
+      updateBar(el("tw-session-bar"), session.percent, sLevel);
 
-      const wPct = weekly.percent != null ? weekly.percent * 100 : 0;
-      el("tw-weekly-val").textContent = weekly.limit
-        ? `${weekly.used} / ${weekly.limit} msgs`
-        : `${weekly.used} msgs`;
+      el("tw-weekly-val").textContent = `${weekly.percent.toFixed(0)}%`;
       el("tw-weekly-reset").textContent = `Resets in ${weekly.timeLeft}`;
-      updateBar(el("tw-weekly-bar"), wPct, wPct >= 90 ? "danger" : wPct >= 70 ? "warning" : "normal");
+      const wLevel = weekly.percent >= 90 ? "danger" : weekly.percent >= 70 ? "warning" : "normal";
+      updateBar(el("tw-weekly-bar"), weekly.percent, wLevel);
     }
 
     // Response timer
-    const timerStats = ResponseTimer.getStats();
-    el("tw-resp-last").textContent = timerStats.lastFormatted;
-    el("tw-resp-avg").textContent = timerStats.avgFormatted;
+    const timer = ResponseTimer.getStats();
+    el("tw-resp-last").textContent = timer.lastFormatted;
+    el("tw-resp-avg").textContent = timer.avgFormatted;
   }
-
-  // ─── Collapse / expand ────────────────────────────────────────────────────
 
   function toggleCollapse() {
     const body = document.getElementById("tw-body");
     const btn  = document.getElementById("tw-collapse-btn");
     isCollapsed = !isCollapsed;
-    if (isCollapsed) {
-      body.style.display = "none";
-      btn.textContent = "+";
-    } else {
-      body.style.display = "block";
-      btn.textContent = "−";
-    }
+    if (isCollapsed) { body.style.display = "none"; btn.textContent = "+"; }
+    else { body.style.display = "block"; btn.textContent = "−"; refreshUI(); }
   }
-
-  // ─── Inject panel into page ───────────────────────────────────────────────
 
   function inject() {
-    if (document.getElementById(PANEL_ID)) return;
-    const panel = createPanel();
-    document.body.appendChild(panel);
-
-    document.getElementById("tw-collapse-btn")
-      .addEventListener("click", toggleCollapse);
-
-    document.getElementById("tw-settings-btn")
-      .addEventListener("click", () => {
-        chrome.runtime.sendMessage({ type: "OPEN_SETTINGS" });
-      });
-
+    if (!document.body) return;
+    if (document.getElementById(WRAPPER_ID)) return;
+    document.body.appendChild(createWrapper());
+    document.getElementById("tw-collapse-btn").addEventListener("click", toggleCollapse);
     ResponseTimer.init();
+    loadCurrentConversation();
     refreshUI();
-    updateTimer = setInterval(refreshUI, UPDATE_INTERVAL);
+    setInterval(refreshUI, REFRESH_INTERVAL);
   }
 
-  // ─── Watch for page navigation (SPA) ─────────────────────────────────────
+  function waitForBodyAndInject() {
+    if (document.body) { inject(); watchNav(); return; }
+    new MutationObserver((mut, obs) => {
+      if (document.body) { obs.disconnect(); inject(); watchNav(); }
+    }).observe(document.documentElement, { childList: true, subtree: true });
+  }
 
-  function observeNavigation() {
+  function watchNav() {
     let lastUrl = location.href;
     new MutationObserver(() => {
       if (location.href !== lastUrl) {
         lastUrl = location.href;
         conversationTokens = 0;
+        CacheTimer.reset();
         UsageTracker.invalidateCache();
-        setTimeout(inject, 1000);
+        setTimeout(loadCurrentConversation, 800);
       }
     }).observe(document.body, { childList: true, subtree: true });
   }
 
-  // ─── Boot ─────────────────────────────────────────────────────────────────
-
-  function init() {
-    if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", () => {
-        inject();
-        observeNavigation();
-      });
-    } else {
-      inject();
-      observeNavigation();
-    }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", waitForBodyAndInject);
   }
-
-  init();
+  waitForBodyAndInject();
 })();

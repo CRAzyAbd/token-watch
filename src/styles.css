@@ -1,20 +1,81 @@
 /* Token Watch — Widget Styles */
 
-#token-watch-panel {
+#token-watch-wrapper {
   position: fixed;
   bottom: 24px;
   right: 24px;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  user-select: none;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+}
+
+/* ─── Cache pill (above the panel, only visible when active) ─────────── */
+
+.tw-cache-pill {
+  display: none;
+  align-items: center;
+  gap: 7px;
+  background: #16213e;
+  border: 1px solid #2e2e4e;
+  border-radius: 20px;
+  padding: 6px 12px 6px 10px;
+  font-size: 11px;
+  color: #e0e0f0;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.tw-cache-pill.tw-cache-visible {
+  display: flex;
+  animation: tw-cache-fade-in 0.2s ease;
+}
+
+@keyframes tw-cache-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.tw-cache-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #7c83fd;
+  box-shadow: 0 0 0 3px rgba(124, 131, 253, 0.2);
+  animation: tw-cache-pulse 2s ease-in-out infinite;
+}
+
+@keyframes tw-cache-pulse {
+  0%, 100% { opacity: 0.6; }
+  50%      { opacity: 1; }
+}
+
+.tw-cache-label {
+  color: #8888aa;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tw-cache-text {
+  color: #e0e0f0;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── Main panel ──────────────────────────────────────────────────────── */
+
+#token-watch-panel {
   width: 220px;
   background: #1a1a2e;
   color: #e0e0f0;
   border-radius: 12px;
   border: 1px solid #2e2e4e;
-  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
   font-size: 11px;
-  z-index: 99999;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   transition: all 0.2s ease;
-  user-select: none;
 }
 
 #token-watch-panel.tw-alert {
@@ -38,11 +99,6 @@
   font-weight: 700;
   color: #7c83fd;
   letter-spacing: 0.5px;
-}
-
-.tw-header-actions {
-  display: flex;
-  gap: 4px;
 }
 
 .tw-btn-icon {

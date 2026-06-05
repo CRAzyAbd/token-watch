@@ -1,17 +1,13 @@
-// usageTracker.js — Fetches session and weekly usage from Claude's native API
+// usageTracker.js — Session and weekly usage from Claude's /usage API
 
 const UsageTracker = (() => {
-  const USAGE_ENDPOINT = "https://claude.ai/api/usage";
-  const SESSION_WINDOW_MS = 5 * 60 * 60 * 1000;   // 5 hours
-  const WEEKLY_WINDOW_MS  = 7 * 24 * 60 * 60 * 1000; // 7 days
-
   let cachedUsage = null;
   let lastFetched = 0;
-  const CACHE_TTL = 60 * 1000; // refresh every 60 seconds
+  const CACHE_TTL = 60 * 1000;
 
   function getOrgId() {
-    const match = document.cookie.match(/lastActiveOrg=([^;]+)/);
-    return match ? match[1] : null;
+    const m = document.cookie.match(/lastActiveOrg=([^;]+)/);
+    return m ? m[1] : null;
   }
 
   async function fetchUsage() {
@@ -22,9 +18,10 @@ const UsageTracker = (() => {
     if (!orgId) return null;
 
     try {
-      const res = await fetch(`https://claude.ai/api/organizations/${orgId}/usage`, {
-        credentials: "include",
-      });
+      const res = await fetch(
+        `https://claude.ai/api/organizations/${orgId}/usage`,
+        { credentials: "include" }
+      );
       if (!res.ok) return null;
       const data = await res.json();
       cachedUsage = data;
@@ -36,39 +33,31 @@ const UsageTracker = (() => {
     }
   }
 
-  function formatTimeLeft(resetTimestamp) {
-    if (!resetTimestamp) return "N/A";
-    const diff = new Date(resetTimestamp) - Date.now();
+  function formatTimeLeft(ts) {
+    if (!ts) return "—";
+    const diff = new Date(ts) - Date.now();
     if (diff <= 0) return "Resetting...";
-    const h = Math.floor(diff / 3600000);
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
     const m = Math.floor((diff % 3600000) / 60000);
+    if (d > 0) return `${d}d ${h}h ${m}m`;
     if (h > 0) return `${h}h ${m}m`;
     return `${m}m`;
   }
 
-  function parseUsageData(data) {
+  async function getUsage() {
+    const data = await fetchUsage();
     if (!data) return null;
     return {
       session: {
-        used: data.message_count_session ?? 0,
-        limit: data.message_limit_session ?? null,
-        percent: data.session_utilization ?? null,
-        resetsAt: data.session_reset_at ?? null,
-        timeLeft: formatTimeLeft(data.session_reset_at),
+        percent:  data.five_hour?.utilization ?? 0,
+        timeLeft: formatTimeLeft(data.five_hour?.resets_at),
       },
       weekly: {
-        used: data.message_count_week ?? 0,
-        limit: data.message_limit_week ?? null,
-        percent: data.week_utilization ?? null,
-        resetsAt: data.week_reset_at ?? null,
-        timeLeft: formatTimeLeft(data.week_reset_at),
+        percent:  data.seven_day?.utilization ?? 0,
+        timeLeft: formatTimeLeft(data.seven_day?.resets_at),
       },
     };
-  }
-
-  async function getUsage() {
-    const raw = await fetchUsage();
-    return parseUsageData(raw);
   }
 
   function invalidateCache() {
