@@ -29,7 +29,7 @@ A complete dashboard for monitoring your Claude usage in real-time. Sits in the 
 
 1. Clone this repo
 ```bash
-   git clone https://github.com/YOUR_USERNAME/token-watch.git
+   git clone https://github.com/CRAzyAbd/token-watch.git
 ```
 2. Open `chrome://extensions` in Chrome/Edge
 3. Enable **Developer mode** (top right)
