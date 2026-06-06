@@ -27,14 +27,21 @@ A complete dashboard for monitoring your Claude usage in real-time. Sits in the 
 
 ## Install
 
+### Easy install (Chrome / Edge)
+
+1. Download [`token-watch-1.0.1.zip`](https://github.com/CRAzyAbd/token-watch/releases/latest/download/token-watch-1.0.1.zip)
+2. Open `chrome://extensions` and enable **Developer mode**
+3. Drag the ZIP onto the page
+
+### From source
+
 1. Clone this repo
 ```bash
    git clone https://github.com/CRAzyAbd/token-watch.git
 ```
-2. Open `chrome://extensions` in Chrome/Edge
-3. Enable **Developer mode** (top right)
-4. Click **Load unpacked** and select the `token-watch` folder
-5. Open claude.ai — dashboard appears in the bottom-right
+2. Open `chrome://extensions` → enable **Developer mode**
+3. Click **Load unpacked** and select the `token-watch` folder
+4. Open claude.ai — dashboard appears in the bottom-right
 
 ## Project Structure
 
