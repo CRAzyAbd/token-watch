@@ -173,10 +173,17 @@
     // Tokens
     const contextLimit = ModelDetector.getContextLimit(model);
     const pct = Math.min((conversationTokens / contextLimit) * 100, 100);
-    const level = TokenCounter.getWarningLevel(conversationTokens);
-    el("tw-token-count").textContent = TokenCounter.formatTokenCount(conversationTokens);
-    el("tw-token-percent").textContent = `${pct.toFixed(1)}% of context used`;
-    el("tw-token-limit").textContent = `/ ${(contextLimit / 1000).toFixed(0)}k`;
+    const isCompacting = conversationTokens > contextLimit;
+    const level = isCompacting ? "danger" : TokenCounter.getWarningLevel(conversationTokens);
+    el("tw-token-count").textContent = isCompacting
+      ? `${TokenCounter.formatTokenCount(conversationTokens)} raw`
+      : TokenCounter.formatTokenCount(conversationTokens);
+    el("tw-token-percent").textContent = isCompacting
+      ? `100% · compacted`
+      : `${pct.toFixed(1)}% of context used`;
+    el("tw-token-limit").textContent = isCompacting
+      ? `active ~${(contextLimit / 1000).toFixed(0)}k`
+      : `/ ${(contextLimit / 1000).toFixed(0)}k`;
     updateBar(el("tw-token-bar"), pct, level);
 
     if (level === "danger") panel.classList.add("tw-alert");
