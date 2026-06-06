@@ -1,21 +1,31 @@
-cat > README.md << 'EOF'
-# ⟨/⟩ token-watch
+# Token Watch
 
-A browser extension that gives you real-time visibility into your Claude usage — token count, cost estimates, session limits, and response times, all in one clean widget.
+A complete dashboard for monitoring your Claude usage in real-time. Sits in the corner of claude.ai and tracks tokens, context window, cache state, session/weekly limits, and Claude's response times.
 
-![Token Watch](https://img.shields.io/badge/version-1.0.0-7c83fd) ![License](https://img.shields.io/badge/license-MIT-4caf82) ![Platform](https://img.shields.io/badge/platform-Chrome%20%7C%20Edge-blue)
+![Version](https://img.shields.io/badge/version-1.0.1-7c83fd) ![License](https://img.shields.io/badge/license-MIT-7c83fd) ![Browser](https://img.shields.io/badge/Chrome%20%7C%20Edge-compatible-7c83fd)
+
+## Preview
+
+**Full dashboard** — stacked sections for every metric, with progress bars and reset countdowns. Cache pill appears above the panel when the conversation cache is active.
+
+![Expanded dashboard](screenshots/token-watch_Screenshot_2.png)
+
+**Collapsed** — minimize to a small header bar when you need the screen space.
+
+![Collapsed](screenshots/token-watch_Screenshot_1.png)
 
 ## Features
 
 - **Token Counter** — Live approximate token count with progress bar against the 200k context limit
-- **Cost Estimator** — Rough cost estimate based on current model pricing
+- **Compaction Awareness** — When raw conversation exceeds 200k, shows `raw` + `active ~200k · compacted`
+- **Cache Pill** — A separate floating pill above the panel showing how long the conversation cache remains active (it pulses while active, disappears on expiry)
 - **Model Detector** — Auto-detects which Claude model is active
-- **Session & Weekly Usage** — Real usage bars from Claude's native API with reset countdowns
+- **Session & Weekly Usage** — Real usage percentages from Claude's native API with reset countdowns (formatted as `1d 8h 23m` for longer durations)
 - **Response Timer** — Tracks last and average Claude response time
 - **Alert System** — Yellow/red warnings as you approach context limits
 - **Settings Page** — Customizable thresholds and toggleable features
 
-## Installation
+## Install
 
 1. Clone this repo
 ```bash
@@ -24,31 +34,32 @@ A browser extension that gives you real-time visibility into your Claude usage �
 2. Open `chrome://extensions` in Chrome/Edge
 3. Enable **Developer mode** (top right)
 4. Click **Load unpacked** and select the `token-watch` folder
+5. Open claude.ai — dashboard appears in the bottom-right
 
 ## Project Structure
 
 <pre>
 token-watch/
-├── icons/                  # Extension icons
+├── icons/                        # Extension icons
+├── screenshots/                  # README screenshots
 ├── src/
 │   ├── modules/
-│   │   ├── tokenCounter.js     # Token counting logic
-│   │   ├── usageTracker.js     # Claude API usage fetcher
-│   │   ├── costEstimator.js    # Cost estimation by model
-│   │   ├── modelDetector.js    # Active model detection
-│   │   └── responseTimer.js    # Response time tracker
-│   ├── content.js          # Main UI injection script
-│   ├── background.js       # Service worker
-│   └── styles.css          # Widget styles
-├── popup/                  # Extension popup
-├── settings/               # Settings page
+│   │   ├── tokenCounter.js       # Token counting logic
+│   │   ├── usageTracker.js       # Claude /usage API fetcher
+│   │   ├── modelDetector.js      # Active model detection
+│   │   ├── responseTimer.js      # Response time tracker
+│   │   └── cacheTimer.js         # Cache window countdown
+│   ├── content.js                # Main UI injection script
+│   ├── background.js             # Service worker
+│   └── styles.css                # Dashboard styles
+├── popup/                        # Extension popup
+├── settings/                     # Settings page
 └── manifest.json
 </pre>
 
 ## Privacy
 
-- All data stays local — no external servers, no tracking
-- Only makes requests to `claude.ai`
+All data stays local — no external servers, no tracking. Only makes requests to `claude.ai`.
 
 ## License
 
