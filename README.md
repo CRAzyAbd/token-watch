@@ -16,14 +16,15 @@ A complete dashboard for monitoring your Claude usage in real-time. Sits in the 
 
 ## Features
 
-- **Token Counter** — Live approximate token count with progress bar against the 200k context limit
-- **Compaction Awareness** — When raw conversation exceeds 200k, shows `raw` + `active ~200k · compacted`
-- **Cache Pill** — A separate floating pill above the panel showing how long the conversation cache remains active (it pulses while active, disappears on expiry)
-- **Model Detector** — Auto-detects which Claude model is active
-- **Session & Weekly Usage** — Real usage percentages from Claude's native API with reset countdowns (formatted as `1d 8h 23m` for longer durations)
-- **Response Timer** — Tracks last and average Claude response time
-- **Alert System** — Yellow/red warnings as you approach context limits
-- **Settings Page** — Customizable thresholds and toggleable features
+- **Token Counter** - Live approximate token count with progress bar against the 200k context limit
+- **Compaction Awareness** - When raw conversation exceeds 200k, shows `raw` + `active ~200k · compacted`
+- **Cache Pill** - A separate floating pill above the panel showing how long the conversation cache remains active (it pulses while active, disappears on expiry)
+- **Model Detector** - Auto-detects which Claude model is active
+- **Session & Weekly Usage** - Real usage percentages from Claude's native API with reset countdowns (formatted as `1d 8h 23m` for longer durations)
+- **Response Timer** - Tracks last and average Claude response time
+- **Alert System** - Yellow/red warnings as you approach context limits
+- **Settings Page** - Customizable thresholds and toggleable features
+- **No Token Usage** 
 
 ## Install
 
